@@ -55,7 +55,6 @@ double massOfPep( string seq ) {
     for( int i = 0; i < seq.length(); i++) {
         mass += aminoAcidMass[seq[i]];
     }
-        cout << mass << endl;
     return mass;
 }
 
@@ -98,25 +97,27 @@ string findNextPeptide(Peptide::Peptide &pep, string seq ) {
             pep.numPhospho = numPTS;
             pep.numMeth = numM;
             peptideList.push_back(pep);
-            cout << pepSeq << endl;
-            cout << seq << endl;
+            //cout << pepSeq << endl;
+            //cout << seq << endl;
+            //cout << seq.substr(pepSeq.length(), seq.length() - pepSeq.length()) << endl;
             return ( seq.substr(pepSeq.length(), seq.length() - pepSeq.length())) ;
         }
     }
+    return("");
 }
 
 void digest(string protSequence, Protein::Protein p) {
     list<Peptide> tempPeptideList;
     if( protSequence.length() > 0 ) {
-      Peptide pep;
-      string next_sequence = findNextPeptide(pep, protSequence);
-      if( pep.sequence.length() > 0 ) {
-          tempPeptideList.push_back(pep);
-          if( next_sequence.length() > 0) {
-              //tempPeptideList += digest(next_sequence, p)
-              digest(next_sequence, p);
-          }
-      }
+        Peptide pep;
+        string next_sequence = findNextPeptide(pep, protSequence);
+        if( pep.sequence.length() > 0 ) {
+            tempPeptideList.push_back(pep);
+            if( next_sequence.length() > 0 ) {
+                //tempPeptideList += digest(next_sequence, p)
+                digest(next_sequence, p);
+            }
+        }
     }
 }
 
@@ -125,7 +126,7 @@ int main(int argc, char* argv[]) {
   ifstream inputStream;   
   inputStream.open(argv[1]); 
   getProteins(inputStream);
-  printProteins();
+  //printProteins();
   for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
       digest( (*proteinIter).sequence, *proteinIter );
   }

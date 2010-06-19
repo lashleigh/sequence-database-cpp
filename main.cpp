@@ -5,19 +5,22 @@
 #include <locale>
 #include <list>
 
+using namespace std;
 #include "peptide.cpp"
 #include "protein.cpp"
-using namespace std;
 
-int main(int argc, char* argv[]) {
-  ifstream inputStream;    // declare the input stream
-  list<Protein> proteinList;
 
+list<Protein> proteinList;
+list<Protein>::iterator proteinIter;
+
+list<Peptide> peptideList;
+list<Peptide>::iterator peptideIter;
+
+void getProteins(ifstream &inputStream) {
   string line;          // a string
   string local_name = "";
   string local_seq;
 
-  inputStream.open(argv[1]); // open file
   getline(inputStream, line);    // read a line
   while (!inputStream.eof()) {
       if( line[0] == '>') {
@@ -33,11 +36,16 @@ int main(int argc, char* argv[]) {
       getline(inputStream, line);
   }
   proteinList.push_back(Protein(local_name, local_seq));
+}
 
-  list<Protein>::iterator p;
+int main(int argc, char* argv[]) {
+  ifstream inputStream;   
+  inputStream.open(argv[1]); 
+  getProteins(inputStream);
+
   int i = 0;
-  for( p = proteinList.begin(); p != proteinList.end(); ++p) {
-      cout << i << (*p).name << endl << (*p).sequence << endl << endl;
+  for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
+      cout << i << (*proteinIter).name << endl << (*proteinIter).sequence << endl << endl;
       i++;
   }
 

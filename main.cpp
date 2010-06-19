@@ -64,7 +64,7 @@ double massOfPep( string seq ) {
 int goodSequence( string seq ) {
     int len = seq.length();
     double mass = massOfPep(seq);
-    if( (len > MIN_LEN_PEPTIDE) and (len < MAX_LEN_PEPTIDE) and (mass > MIN_PEPTIDE_MASS) and (mass < MAX_PEPTIDE_MASS) )
+    if( (len >= MIN_LEN_PEPTIDE) and (len < MAX_LEN_PEPTIDE) and (mass > MIN_PEPTIDE_MASS) and (mass < MAX_PEPTIDE_MASS) )
         return true;
     else
         return false;
@@ -129,9 +129,6 @@ string findNextPeptide(Peptide::Peptide &pep, string seq ) {
             pep.numPhospho = numPTS;
             pep.numMeth = numM;
             allPeptideList.push_back(pep);
-            //cout << pepSeq << endl;
-            //cout << seq << endl;
-            //cout << seq.substr(pepSeq.length(), seq.length() - pepSeq.length()) << endl;
             return ( seq.substr(pepSeq.length(), seq.length() - pepSeq.length())) ;
         }
     }
@@ -156,8 +153,8 @@ void findGoodPeptides() {
         for(int i = 0; i < ALLOWED_MISSED_CLEAVAGES + 1; i++) {
             if(i < allPeptideList.size()) {
                 potentialPep += (*peptideIter);
-                goodPeptideList.push_back(potentialPep);
-                cout << potentialPep.sequence << endl;
+                if(goodSequence(potentialPep.sequence) )
+                    goodPeptideList.push_back(potentialPep);
             }
             peptideIter++;
         }
@@ -170,14 +167,14 @@ int main(int argc, char* argv[]) {
   ifstream inputStream;   
   inputStream.open(argv[1]); 
   getProteins(inputStream);
-  printProteins();
+  //printProteins();
   for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
       digest( (*proteinIter).sequence, *proteinIter );
   }
   findGoodPeptides();
   if( SEMI_TRYPTIC == true)
       generateSemiCleaved();
-  for( peptideIter = semiTrypticPeptideList.begin(); peptideIter != semiTrypticPeptideList.end(); ++peptideIter) {
+  for( peptideIter = goodPeptideList.begin(); peptideIter != goodPeptideList.end(); ++peptideIter) {
       cout << (*peptideIter).sequence << endl;
   }
 

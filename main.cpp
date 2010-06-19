@@ -1,20 +1,9 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include <string>
 #include <locale>
-#include <list>
-
-using namespace std;
-#include "peptide.cpp"
-#include "protein.cpp"
-
-
-list<Protein> proteinList;
-list<Protein>::iterator proteinIter;
-
-list<Peptide> peptideList;
-list<Peptide>::iterator peptideIter;
+#include "header.hpp"
+#include "lists.cpp"
 
 void getProteins(ifstream &inputStream) {
   string line;          // a string
@@ -38,15 +27,39 @@ void getProteins(ifstream &inputStream) {
   proteinList.push_back(Protein(local_name, local_seq));
 }
 
+void findNextPeptide(Peptide::Peptide &pep, string &seq ) {
+    string pepSeq = "";
+    int numPTS = 0;
+    int numM = 0;
+        cout << seq << endl;
+    for( int i = 0; i < seq.length(); i++) {
+        if( badChar(seq[i]) ) 
+            break;
+        pepSeq += seq[i];
+        checkForSpecialChar(seq[i], numPTS, numM);
+        if( endPeptide(pepSeq) ) {
+            cout << pepSeq << endl;
+            //peptideList.push_back(Peptide(pepSeq, massofPep(pepSeq), ) );
+        }
+    }
+}
+
+void digest(string protSequence, Protein::Protein p) {
+    list<Peptide> tempPeptideList;
+    if( protSequence.length() > 0 ) {
+      Peptide pep;
+      string next_sequence = protSequence;
+      findNextPeptide(pep, next_sequence);
+    }
+}
+
 int main(int argc, char* argv[]) {
   ifstream inputStream;   
   inputStream.open(argv[1]); 
   getProteins(inputStream);
-
-  int i = 0;
+  //printProteins();
   for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
-      cout << i << (*proteinIter).name << endl << (*proteinIter).sequence << endl << endl;
-      i++;
+      digest((*proteinIter).sequence, *proteinIter);
   }
 
     return 0;

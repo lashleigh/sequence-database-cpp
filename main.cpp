@@ -9,6 +9,7 @@
 #include "protein.cpp"
 #include "protein.hpp"
 #include "AminoAcidMasses.h"
+#include "constants.hpp"
 //#include "lists.cpp"
 using namespace std;
 
@@ -17,7 +18,9 @@ double aminoAcidMass[128];
 list<Protein> proteinList;
 list<Protein>::iterator proteinIter;
 
-list<Peptide> peptideList;
+list<Peptide> allPeptideList;
+list<Peptide> goodPeptideList;
+list<Peptide> semiTrypticPeptideList;
 list<Peptide>::iterator peptideIter;
 
 void printProteins() {
@@ -58,6 +61,35 @@ double massOfPep( string seq ) {
     return mass;
 }
 
+int goodSequence( string seq ) {
+    int len = seq.length();
+    double mass = massOfPep(seq);
+    if( (len > MIN_LEN_PEPTIDE) and (len < MAX_LEN_PEPTIDE) and (mass > MIN_PEPTIDE_MASS) and (mass < MAX_PEPTIDE_MASS) )
+        return true;
+    else
+        return false;
+}
+
+void generateSemiCleaved() {
+  for( peptideIter = goodPeptideList.begin(); peptideIter != goodPeptideList.end(); ++peptideIter) {
+      string seq = (*peptideIter).sequence;
+      int numPassedCleaveages = 0,
+          numPassedPTS = 0,
+          numPassedM = 0;
+      for( int i = 1; i < seq.length(); i++ ) {
+          if( numPassedCleaveages < max(1, (*peptideIter).numCleaveageChars -1) ) {
+              if( goodSequence( seq.substr(i, seq.length() - i) ) ) {
+                  semiTrypticPeptideList.push_back( Peptide(seq.substr(i, seq.length() - i), massOfPep( seq.substr(i, seq.length() - 1)), 
+                              (*peptideIter).numCleaveageChars - numPassedCleaveages, (*peptideIter).numPhospho - numPassedPTS, 
+                              (*peptideIter).numMeth - numPassedM) );
+                  if( endPeptide( seq[i] ))
+                      numPassedCleaveages++;
+                  checkForSpecialChar(seq[i], numPassedPTS, numPassedM);
+              }
+          }
+      }
+  }
+}
 
 void getProteins(ifstream &inputStream) {
   string line;          // a string
@@ -96,7 +128,7 @@ string findNextPeptide(Peptide::Peptide &pep, string seq ) {
             pep.numCleaveageChars = 1;
             pep.numPhospho = numPTS;
             pep.numMeth = numM;
-            peptideList.push_back(pep);
+            allPeptideList.push_back(pep);
             //cout << pepSeq << endl;
             //cout << seq << endl;
             //cout << seq.substr(pepSeq.length(), seq.length() - pepSeq.length()) << endl;
@@ -111,13 +143,25 @@ void digest(string protSequence, Protein::Protein p) {
     if( protSequence.length() > 0 ) {
         Peptide pep;
         string next_sequence = findNextPeptide(pep, protSequence);
-        if( pep.sequence.length() > 0 ) {
-            tempPeptideList.push_back(pep);
-            if( next_sequence.length() > 0 ) {
-                //tempPeptideList += digest(next_sequence, p)
-                digest(next_sequence, p);
-            }
+        if( next_sequence.length() > 0 ) {
+            digest(next_sequence, p);
         }
+    }
+}
+
+void findGoodPeptides() {
+    while( allPeptideList.size() != 0 ) {
+        peptideIter = allPeptideList.begin();
+        Peptide potentialPep;
+        for(int i = 0; i < ALLOWED_MISSED_CLEAVAGES + 1; i++) {
+            if(i < allPeptideList.size()) {
+                potentialPep += (*peptideIter);
+                goodPeptideList.push_back(potentialPep);
+                cout << potentialPep.sequence << endl;
+            }
+            peptideIter++;
+        }
+        allPeptideList.pop_front();
     }
 }
 
@@ -126,9 +170,15 @@ int main(int argc, char* argv[]) {
   ifstream inputStream;   
   inputStream.open(argv[1]); 
   getProteins(inputStream);
-  //printProteins();
+  printProteins();
   for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
       digest( (*proteinIter).sequence, *proteinIter );
+  }
+  findGoodPeptides();
+  if( SEMI_TRYPTIC == true)
+      generateSemiCleaved();
+  for( peptideIter = semiTrypticPeptideList.begin(); peptideIter != semiTrypticPeptideList.end(); ++peptideIter) {
+      cout << (*peptideIter).sequence << endl;
   }
 
   return 0;

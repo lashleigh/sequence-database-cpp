@@ -12,6 +12,7 @@ class Peptide {
         int numMeth;
         Peptide();
         Peptide(std::string, double, int, int, int);
+        Peptide operator+= (Peptide);
         //list<Protein> peptideProteinList;
 };
 

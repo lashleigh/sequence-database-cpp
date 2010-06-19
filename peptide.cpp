@@ -17,5 +17,15 @@ Peptide::Peptide(std::string seq, double mass, int numCleaveageChars, int numPho
     numPhospho = numPhospho;
     numMeth = numMeth;
 }
+
+Peptide Peptide::operator+=(Peptide right) {
+    this->sequence += right.sequence;
+    this->neutralMass += right.neutralMass;
+    this->numCleaveageChars += right.numCleaveageChars;
+    this->numPhospho += right.numPhospho;
+    this->numMeth += right.numMeth;
+    return *this;
+}
+
 #endif
 

@@ -8,8 +8,11 @@
 #include "peptide.hpp"
 #include "protein.cpp"
 #include "protein.hpp"
+#include "AminoAcidMasses.h"
 //#include "lists.cpp"
 using namespace std;
+
+double aminoAcidMass[128];
 
 list<Protein> proteinList;
 list<Protein>::iterator proteinIter;
@@ -40,19 +43,19 @@ void checkForSpecialChar(char c, int &numPTS, int &numM) {
         numM++;
 }
 
-int endPeptide( string &pepSeq) {
-    if( pepSeq[pepSeq.length()-1] == 'K' )
+int endPeptide( char c) {
+    if( (c == 'K') or (c == 'R') )
         return true;
     else
         return false;
 }
 
-double massofPep( string seq ) {
+double massOfPep( string seq ) {
     double mass = 0;
     for( int i = 0; i < seq.length(); i++) {
-        //mass += aminoAcidMass( seq[i] );
-        cout << "..." << endl;
+        mass += aminoAcidMass[seq[i]];
     }
+        cout << mass << endl;
     return mass;
 }
 
@@ -79,19 +82,25 @@ void getProteins(ifstream &inputStream) {
   proteinList.push_back(Protein(local_name, local_seq));
 }
 
-void findNextPeptide(Peptide::Peptide &pep, string &seq ) {
+string findNextPeptide(Peptide::Peptide &pep, string seq ) {
     string pepSeq = "";
     int numPTS = 0;
     int numM = 0;
-        cout << seq << endl;
     for( int i = 0; i < seq.length(); i++) {
         if( badChar(seq[i]) ) 
-            break;
+            continue;
         pepSeq += seq[i];
         checkForSpecialChar(seq[i], numPTS, numM);
-        if( endPeptide(pepSeq) ) {
+        if( endPeptide(seq[i]) ) {
+            pep.sequence = pepSeq;
+            pep.neutralMass = massOfPep(pepSeq);
+            pep.numCleaveageChars = 1;
+            pep.numPhospho = numPTS;
+            pep.numMeth = numM;
+            peptideList.push_back(pep);
             cout << pepSeq << endl;
-            //peptideList.push_back(Peptide(pepSeq, massofPep(pepSeq), ) );
+            cout << seq << endl;
+            return ( seq.substr(pepSeq.length(), seq.length() - pepSeq.length())) ;
         }
     }
 }
@@ -100,19 +109,26 @@ void digest(string protSequence, Protein::Protein p) {
     list<Peptide> tempPeptideList;
     if( protSequence.length() > 0 ) {
       Peptide pep;
-      string next_sequence = protSequence;
-      findNextPeptide(pep, next_sequence);
+      string next_sequence = findNextPeptide(pep, protSequence);
+      if( pep.sequence.length() > 0 ) {
+          tempPeptideList.push_back(pep);
+          if( next_sequence.length() > 0) {
+              //tempPeptideList += digest(next_sequence, p)
+              digest(next_sequence, p);
+          }
+      }
     }
 }
 
 int main(int argc, char* argv[]) {
+  INITIALIZE_MASS(aminoAcidMass, 1);
   ifstream inputStream;   
   inputStream.open(argv[1]); 
   getProteins(inputStream);
-  //printProteins();
+  printProteins();
   for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
-      digest((*proteinIter).sequence, *proteinIter);
+      digest( (*proteinIter).sequence, *proteinIter );
   }
 
-    return 0;
+  return 0;
 }

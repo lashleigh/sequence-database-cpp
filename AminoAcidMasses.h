@@ -19,7 +19,7 @@ void INITIALIZE_MASS(double *pdAAMass,
    int i;
 
    for (i=0; i<128; i++)
-      pdAAMass[i] = 999999.9;
+      pdAAMass[i] = 0.0;
 
    if (bMassType)
    {

@@ -15,3 +15,6 @@ protein.o: protein.cpp
 
 run:
 	./main
+
+clean:
+	rm *.o main

@@ -4,9 +4,10 @@
 
 class Protein {
     public:
+        int LibID;
         std::string name;
         std::string sequence;
-      Protein(std::string, std::string);
+      Protein(int, std::string, std::string);
 };
 
 #endif

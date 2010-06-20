@@ -2,7 +2,16 @@
 #define _PEPTIDE_HPP_
 #include <iostream>
 #include <string>
+#include <algorithm>
+#include <set>
 #include "protein.hpp"
+
+struct protein_comp {
+    bool operator() (const int a, const int b) const {
+        return( a < b);
+    }
+};
+std::set<int>::iterator parentProteinIter;
 
 class Peptide {
     public:
@@ -11,9 +20,9 @@ class Peptide {
         int numCleaveageChars;
         int numPhospho;
         int numMeth;
-        Protein *parentProtein;
-        Peptide(Protein *p);
-        Peptide(std::string, double, int, int, int, Protein*);
+        std::set<int, protein_comp> parentProtein;
+        Peptide();
+        Peptide(std::string, double, int, int, int, std::set<int, protein_comp>);
         Peptide operator+= (Peptide);
 };
 

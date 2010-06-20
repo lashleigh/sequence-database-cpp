@@ -3,6 +3,7 @@
 #include <fstream>
 #include <locale>
 #include <list>
+#include <set>
 //#include "header.hpp"
 #include "peptide.cpp"
 #include "peptide.hpp"
@@ -22,6 +23,8 @@ list<Peptide> allPeptideList;
 list<Peptide> goodPeptideList;
 list<Peptide> semiTrypticPeptideList;
 list<Peptide>::iterator peptideIter;
+
+set<Peptide> globalPeptideSet;
 
 void printProteins() {
   int i = 0;
@@ -136,7 +139,6 @@ string findNextPeptide(Peptide::Peptide &pep, string seq ) {
 }
 
 void digest(string protSequence, Protein::Protein p) {
-    list<Peptide> tempPeptideList;
     if( protSequence.length() > 0 ) {
         Peptide pep;
         string next_sequence = findNextPeptide(pep, protSequence);
@@ -146,19 +148,20 @@ void digest(string protSequence, Protein::Protein p) {
     }
 }
 
-void findGoodPeptides() {
-    while( allPeptideList.size() != 0 ) {
+void findGoodPeptides(int peptideListOriginalSize) {
+    while( peptideListOriginalSize != 0 ) {
         peptideIter = allPeptideList.begin();
         Peptide potentialPep;
         for(int i = 0; i < ALLOWED_MISSED_CLEAVAGES + 1; i++) {
-            if(i < allPeptideList.size()) {
+            if(i < peptideListOriginalSize) {
                 potentialPep += (*peptideIter);
                 if(goodSequence(potentialPep.sequence) )
                     goodPeptideList.push_back(potentialPep);
             }
-            peptideIter++;
+            ++peptideIter;
         }
         allPeptideList.pop_front();
+        --peptideListOriginalSize;
     }
 }
 
@@ -169,14 +172,16 @@ int main(int argc, char* argv[]) {
   getProteins(inputStream);
   //printProteins();
   for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
+      cout << (*proteinIter).name << endl;
       digest( (*proteinIter).sequence, *proteinIter );
+      int j = allPeptideList.size();
+      findGoodPeptides(j);
   }
-  findGoodPeptides();
   if( SEMI_TRYPTIC == true)
       generateSemiCleaved();
-  for( peptideIter = goodPeptideList.begin(); peptideIter != goodPeptideList.end(); ++peptideIter) {
-      cout << (*peptideIter).sequence << endl;
-  }
+  //for( peptideIter = goodPeptideList.begin(); peptideIter != goodPeptideList.end(); ++peptideIter) {
+  //    cout << (*peptideIter).sequence << endl;
+  //}
 
   return 0;
 }

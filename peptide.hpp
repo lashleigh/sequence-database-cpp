@@ -13,6 +13,7 @@ class Peptide {
         Peptide();
         Peptide(std::string, double, int, int, int);
         Peptide operator+= (Peptide);
+        bool operator==(Peptide);
         //list<Protein> peptideProteinList;
 };
 

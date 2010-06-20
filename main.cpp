@@ -1,4 +1,5 @@
 #include <iostream>
+#include <utility>
 #include <iomanip>
 #include <fstream>
 #include <locale>
@@ -26,12 +27,16 @@ list<Peptide>::iterator peptideIter;
 
 struct class_comp {
     bool operator() (const Peptide a, const Peptide b) const {
-        return( a.neutralMass < b.neutralMass);
+        if(a.neutralMass == b.neutralMass) 
+            return( a.sequence < b.sequence);
+        else
+            return( a.neutralMass < b.neutralMass);
     }
 };
 
 set<Peptide, class_comp> globalPeptideSet;
 set<Peptide>::iterator peptideSetIter;
+pair<set<Peptide>::iterator, bool> peptideSetInsertResult;
 
 void printProteins() {
   cout << endl;
@@ -64,11 +69,11 @@ void printSetOfAllPeptides() {
             << (*peptideSetIter).numCleaveageChars << "\t" 
             << (*peptideSetIter).numMeth << "\t" 
             << (*peptideSetIter).numPhospho << "\t" 
-            << (*peptideSetIter).sequence << "\t" 
+            << (*peptideSetIter).sequence << "\t" ;
             //<< (*peptideSetIter).parentProtein->name.substr(0,7) 
-            << endl;
         for(parentProteinIter = (*peptideSetIter).parentProtein.begin(); parentProteinIter != (*peptideSetIter).parentProtein.end(); ++parentProteinIter)
-            cout << *parentProteinIter << endl;
+            cout << *parentProteinIter;
+        cout <<endl;
     }
 }
 
@@ -110,6 +115,10 @@ int goodSequence( string seq ) {
         return false;
 }
 
+int goodProteinSequence( string protSeq ) {
+    return true;
+}
+
 void generateSemiCleaved(Protein::Protein p) {
   for( peptideIter = goodPeptideList.begin(); peptideIter != goodPeptideList.end(); ++peptideIter) {
       string seq = (*peptideIter).sequence;
@@ -128,9 +137,13 @@ void generateSemiCleaved(Protein::Protein p) {
                   newPep.numCleaveageChars = (*peptideIter).numCleaveageChars - numPassedCleaveages;
                   newPep.numPhospho = (*peptideIter).numPhospho - numPassedPTS ;
                   newPep.numMeth = (*peptideIter).numMeth - numPassedM;
-                  //newPep.parentProtein = set_union(newPep.parentProtein, newPep.parentProtein.end(), (*peptideIter).parentProtein, (*peptideIter).parentProtein.end(), newPep.parentProtein.begin);
                   newPep.parentProtein.insert((*peptideIter).parentProtein.begin(), (*peptideIter).parentProtein.end() );
-                  globalPeptideSet.insert(newPep);
+                  peptideSetInsertResult = globalPeptideSet.insert(newPep);
+                  if( peptideSetInsertResult.second == false ) {
+                      peptideSetIter = peptideSetInsertResult.first;
+                      //(*peptideSetIter).parentProtein.insert(55);
+                      //(*peptideSetIter).parentProtein.insert(newPep.parentProtein.begin(), newPep.parentProtein.end() );
+                  }
               }
               if( endPeptide( seq[i] ))
                   numPassedCleaveages++;
@@ -150,8 +163,10 @@ void getProteins(ifstream &inputStream) {
   while (!inputStream.eof()) {
       if( line[0] == '>') {
           if( local_name.length() > 0 ) {
-              proteinList.push_back(Protein(libID, local_name, local_seq));
-              libID++;
+              if( goodProteinSequence(local_seq)) {
+                  proteinList.push_back(Protein(libID, local_name, local_seq));
+                  libID++;
+              }
           }
           local_name = line;
           local_seq = "";
@@ -222,16 +237,21 @@ int main(int argc, char* argv[]) {
   inputStream.open(argv[1]); 
   getProteins(inputStream);
   //printProteins();
+  int numFullyTryptic = 0;
   for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
       digest( (*proteinIter).sequence, *proteinIter );
       int j = allPeptideList.size();
       findGoodPeptides(j, *proteinIter);
       //printPeptide();
+      numFullyTryptic += goodPeptideList.size();
       if( SEMI_TRYPTIC == true)
           generateSemiCleaved(*proteinIter);
       goodPeptideList.clear();
   }
-  printSetOfAllPeptides();
+  //printSetOfAllPeptides();
+  cout << "# proteins: " << proteinList.size() << endl;
+  cout << "# tryptic:  " << numFullyTryptic << endl;
+  cout << "# peptides: " << globalPeptideSet.size() << endl;
 
   return 0;
 }

@@ -36,6 +36,7 @@ set<Peptide>::iterator peptideSetIter;
 void printProteins() {
   int i = 0;
   cout << endl;
+  cout << proteinList.size() << endl;
   for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
       cout << i << "  " << (*proteinIter).name.substr(0, 7) << endl << (*proteinIter).sequence << endl << endl;
       i++;
@@ -80,16 +81,19 @@ int goodSequence( string seq ) {
         return false;
 }
 
-void generateSemiCleaved() {
+void generateSemiCleaved(Protein::Protein p) {
   for( peptideIter = goodPeptideList.begin(); peptideIter != goodPeptideList.end(); ++peptideIter) {
       string seq = (*peptideIter).sequence;
       int numPassedCleaveages = 0,
           numPassedPTS = 0,
           numPassedM = 0;
+      if(endPeptide(seq[0]))
+          numPassedCleaveages++;
+      checkForSpecialChar(seq[0], numPassedPTS, numPassedM);
       for( int i = 1; i < seq.length(); i++ ) {
           if( numPassedCleaveages < max(1, (*peptideIter).numCleaveageChars - 1) ) {
               if( goodSequence( seq.substr(i, seq.length() - i) ) ) {
-                  Peptide newPep;
+                  Peptide newPep(&p);
                   newPep.sequence = seq.substr(i, seq.length() - i);
                   newPep.neutralMass = massOfPep(seq.substr(i, seq.length() - i) );
                   newPep.numCleaveageChars = (*peptideIter).numCleaveageChars - numPassedCleaveages;
@@ -127,7 +131,7 @@ void getProteins(ifstream &inputStream) {
   proteinList.push_back(Protein(local_name, local_seq));
 }
 
-string findNextPeptide(Peptide::Peptide &pep, string seq ) {
+string findNextPeptide(Peptide::Peptide &pep, string seq, Protein::Protein p ) {
     string pepSeq = "";
     int numPTS = 0;
     int numM = 0;
@@ -151,18 +155,18 @@ string findNextPeptide(Peptide::Peptide &pep, string seq ) {
 
 void digest(string protSequence, Protein::Protein p) {
     if( protSequence.length() > 0 ) {
-        Peptide pep;
-        string next_sequence = findNextPeptide(pep, protSequence);
+        Peptide pep(&p);
+        string next_sequence = findNextPeptide(pep, protSequence, p);
         if( next_sequence.length() > 0 ) {
             digest(next_sequence, p);
         }
     }
 }
 
-void findGoodPeptides(int peptideListLength) {
+void findGoodPeptides(int peptideListLength, Protein::Protein p) {
     while( peptideListLength != 0 ) {
         peptideIter = allPeptideList.begin();
-        Peptide potentialPep;
+        Peptide potentialPep(&p);
         for(int i = 0; i < ALLOWED_MISSED_CLEAVAGES + 1; i++) {
             if(i < peptideListLength) {
                 potentialPep += (*peptideIter);
@@ -187,22 +191,27 @@ int main(int argc, char* argv[]) {
   for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
       digest( (*proteinIter).sequence, *proteinIter );
       int j = allPeptideList.size();
-      findGoodPeptides(j);
+      findGoodPeptides(j, *proteinIter);
+      for( peptideIter = goodPeptideList.begin(); peptideIter != goodPeptideList.end(); ++peptideIter) {
+          cout << (*peptideIter).neutralMass << "\t" 
+              << (*peptideIter).numCleaveageChars << "\t" 
+              << (*peptideIter).numPhospho << "\t" 
+              << (*peptideIter).sequence << "\t" 
+              << (*peptideIter).parentProtein->name.substr(0,6) 
+              << endl;
+      }
       if( SEMI_TRYPTIC == true)
-          generateSemiCleaved();
-      /*for( peptideIter = goodPeptideList.begin(); peptideIter != goodPeptideList.end(); ++peptideIter) {
-          cout << (*peptideIter).neutralMass << "\t" << (*peptideIter).numCleaveageChars << "\t" <<
-              (*peptideIter).numPhospho << "\t" << (*peptideIter).sequence << endl;
-      }*/
+          generateSemiCleaved(*proteinIter);
       goodPeptideList.clear();
   }
-  cout << "mass\t KR \t M \t PTS \t sequence" << endl;
+  /*cout << "mass\t KR \t M \t PTS \t sequence" << endl;
   for( peptideSetIter = globalPeptideSet.begin(); peptideSetIter != globalPeptideSet.end(); ++peptideSetIter) 
       cout << (*peptideSetIter).neutralMass << "\t" << 
           (*peptideSetIter).numCleaveageChars << "\t" <<
           (*peptideSetIter).numMeth << "\t" <<
           (*peptideSetIter).numPhospho << "\t" << 
-          (*peptideSetIter).sequence << endl;
-
+          (*peptideSetIter).sequence << "\t" <<
+          (*peptideSetIter).parentProtein->name.substr(0,7) << endl;
+*/
   return 0;
 }

@@ -2,6 +2,7 @@
 #define _PEPTIDE_HPP_
 #include <iostream>
 #include <string>
+#include "protein.hpp"
 
 class Peptide {
     public:
@@ -10,11 +11,10 @@ class Peptide {
         int numCleaveageChars;
         int numPhospho;
         int numMeth;
-        Peptide();
-        Peptide(std::string, double, int, int, int);
+        Protein *parentProtein;
+        Peptide(Protein *p);
+        Peptide(std::string, double, int, int, int, Protein*);
         Peptide operator+= (Peptide);
-        bool operator==(Peptide);
-        //list<Protein> peptideProteinList;
 };
 
 #endif

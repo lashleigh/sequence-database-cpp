@@ -232,26 +232,38 @@ void findGoodPeptides(int peptideListLength, Protein::Protein p) {
 }
 
 int main(int argc, char* argv[]) {
-  INITIALIZE_MASS(aminoAcidMass, 1);
-  ifstream inputStream;   
-  inputStream.open(argv[1]); 
-  getProteins(inputStream);
-  //printProteins();
-  int numFullyTryptic = 0;
-  for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
-      digest( (*proteinIter).sequence, *proteinIter );
-      int j = allPeptideList.size();
-      findGoodPeptides(j, *proteinIter);
-      //printPeptide();
-      numFullyTryptic += goodPeptideList.size();
-      if( SEMI_TRYPTIC == true)
-          generateSemiCleaved(*proteinIter);
-      goodPeptideList.clear();
-  }
-  //printSetOfAllPeptides();
-  cout << "# proteins: " << proteinList.size() << endl;
-  cout << "# tryptic:  " << numFullyTryptic << endl;
-  cout << "# peptides: " << globalPeptideSet.size() << endl;
+    if(argc < 2) {
+        cout << "  An file must be supplied for digestion" << endl
+            << "  Example:  ./main test.fasta"
+            << endl;
+        exit(1);
+    }
 
-  return 0;
+    ifstream inputStream;   
+    inputStream.open(argv[1]); 
+    if( inputStream.is_open() == false) {
+        cout << "  The supplied file could not be opened" << endl << endl;
+        exit(1);
+    }
+
+    INITIALIZE_MASS(aminoAcidMass, 1);
+    getProteins(inputStream);
+    //printProteins();
+    int numFullyTryptic = 0;
+    for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
+        digest( (*proteinIter).sequence, *proteinIter );
+        int j = allPeptideList.size();
+        findGoodPeptides(j, *proteinIter);
+        //printPeptide();
+        numFullyTryptic += goodPeptideList.size();
+        if( SEMI_TRYPTIC == true)
+            generateSemiCleaved(*proteinIter);
+        goodPeptideList.clear();
+    }
+    //printSetOfAllPeptides();
+    cout << "# proteins: " << proteinList.size() << endl;
+    cout << "# tryptic:  " << numFullyTryptic << endl;
+    cout << "# peptides: " << globalPeptideSet.size() << endl;
+
+    return 0;
 }

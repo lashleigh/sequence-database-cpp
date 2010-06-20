@@ -7,7 +7,7 @@
 #include "protein.hpp"
 
 struct protein_comp {
-    bool operator() (const int a, const int b) const {
+    bool operator() (int a, int b) {
         return( a < b);
     }
 };

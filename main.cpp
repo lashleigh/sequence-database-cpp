@@ -26,7 +26,7 @@ list<Peptide> goodPeptideList;
 list<Peptide>::iterator peptideIter;
 
 struct class_comp {
-    bool operator() (const Peptide a, const Peptide b) const {
+    bool operator() (Peptide a, Peptide b) {
         if(a.neutralMass == b.neutralMass) 
             return( a.sequence < b.sequence);
         else
@@ -72,7 +72,7 @@ void printSetOfAllPeptides() {
             << (*peptideSetIter).sequence << "\t" ;
             //<< (*peptideSetIter).parentProtein->name.substr(0,7) 
         for(parentProteinIter = (*peptideSetIter).parentProtein.begin(); parentProteinIter != (*peptideSetIter).parentProtein.end(); ++parentProteinIter)
-            cout << *parentProteinIter;
+            cout << *parentProteinIter << "  ";
         cout <<endl;
     }
 }
@@ -141,8 +141,10 @@ void generateSemiCleaved(Protein::Protein p) {
                   peptideSetInsertResult = globalPeptideSet.insert(newPep);
                   if( peptideSetInsertResult.second == false ) {
                       peptideSetIter = peptideSetInsertResult.first;
-                      //(*peptideSetIter).parentProtein.insert(55);
-                      //(*peptideSetIter).parentProtein.insert(newPep.parentProtein.begin(), newPep.parentProtein.end() );
+                      Peptide tempPep = (*peptideSetIter);
+                      globalPeptideSet.erase(peptideSetIter);
+                      tempPep.parentProtein.insert(newPep.parentProtein.begin(), newPep.parentProtein.end() );
+                      globalPeptideSet.insert(tempPep);
                   }
               }
               if( endPeptide( seq[i] ))
@@ -260,7 +262,7 @@ int main(int argc, char* argv[]) {
             generateSemiCleaved(*proteinIter);
         goodPeptideList.clear();
     }
-    //printSetOfAllPeptides();
+    printSetOfAllPeptides();
     cout << "# proteins: " << proteinList.size() << endl;
     cout << "# tryptic:  " << numFullyTryptic << endl;
     cout << "# peptides: " << globalPeptideSet.size() << endl;

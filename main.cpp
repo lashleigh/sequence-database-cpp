@@ -156,15 +156,12 @@ void findGoodPeptides(int peptideListLength, Protein::Protein p) {
             if(i < peptideListLength) {
                 potentialPep += (*peptideIter);
                 if(goodSequence(potentialPep.sequence) ) {
-                    goodPeptideSet.insert(potentialPep);
                     peptideSetInsertResult = goodPeptideSet.insert(potentialPep);
                     if( peptideSetInsertResult.second == false)
                         modifyParentProteinSet(goodPeptideSet, peptideSetInsertResult.first, potentialPep);
-                    else {
-                        peptideSetInsertResult = globalPeptideSet.insert(potentialPep);
-                        if( peptideSetInsertResult.second == false )
-                            modifyParentProteinSet(globalPeptideSet, peptideSetInsertResult.first, potentialPep);
-                    }
+                    peptideSetInsertResult = globalPeptideSet.insert(potentialPep);
+                    if( peptideSetInsertResult.second == false )
+                        modifyParentProteinSet(globalPeptideSet, peptideSetInsertResult.first, potentialPep);
                 }
             }
             ++peptideIter;

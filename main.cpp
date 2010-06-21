@@ -37,25 +37,26 @@ set<Peptide, class_comp> globalPeptideSet;
 set<Peptide, class_comp> goodPeptideSet;
 set<Peptide>::iterator peptideSetIter;
 set<Peptide>::iterator peptideSetIter2;
+set<Peptide>::iterator tempIt;
 pair<set<Peptide>::iterator, bool> peptideSetInsertResult;
 #include "helpers.cpp"
 #include "printHelpers.cpp"
 
-void modifyParentProteinSet(std::set<Peptide, class_comp> &someSet, std::set<Peptide>::iterator peptideSetIter, Peptide::Peptide &newPep) {
-    //if(peptideSetIter != globalPeptideSet.end()) {
-        Peptide tempPep = (*peptideSetIter);
-        peptideSetIter2 = peptideSetIter;
-        someSet.erase(peptideSetIter);
+void modifyParentProteinSet(std::set<Peptide, class_comp> &someSet, std::set<Peptide>::iterator someIter, Peptide::Peptide &newPep) {
+    if( (someIter == someSet.begin()) ) {
+        Peptide tempPep = (*someIter);
+        someSet.erase(someIter);
         tempPep.parentProtein.insert(newPep.parentProtein.begin(), newPep.parentProtein.end() );
         someSet.insert(tempPep);
-    /*}
+    }
     else {
-        Peptide tempPep = (*peptideSetIter);
-        peptideSetIter2 = peptideSetIter--;
-        globalPeptideSet.erase(peptideSetIter);
+        Peptide tempPep = (*someIter);
+        tempIt = someIter;
+        --tempIt;
+        someSet.erase(someIter);
         tempPep.parentProtein.insert(newPep.parentProtein.begin(), newPep.parentProtein.end() );
-        globalPeptideSet.insert(tempPep);
-    }*/
+        someSet.insert(tempIt, tempPep);
+    }
 }
 
 void generateSemiCleaved( ) {

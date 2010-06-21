@@ -42,7 +42,8 @@ void printSetOfAllPeptides() {
 //    cout << "Number of Peptides: " << globalPeptideSet.size() << endl;
     cout << "mass\tKR\tM\tPTS\tsequence" << endl;
     for( peptideSetIter = globalPeptideSet.begin(); peptideSetIter != globalPeptideSet.end(); ++peptideSetIter) {
-        cout << (*peptideSetIter).neutralMass << " " 
+          cout 
+    //      << (*peptideSetIter).neutralMass << " " 
             << (*peptideSetIter).numCleaveageChars << " " 
             << (*peptideSetIter).numMeth << " " 
             << (*peptideSetIter).numPhospho << " " 

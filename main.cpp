@@ -41,13 +41,13 @@ pair<set<Peptide>::iterator, bool> peptideSetInsertResult;
 #include "helpers.cpp"
 #include "printHelpers.cpp"
 
-void modifyParentProteinSet( std::set<Peptide>::iterator peptideSetIter, Peptide::Peptide &newPep) {
+void modifyParentProteinSet(std::set<Peptide, class_comp> &someSet, std::set<Peptide>::iterator peptideSetIter, Peptide::Peptide &newPep) {
     //if(peptideSetIter != globalPeptideSet.end()) {
         Peptide tempPep = (*peptideSetIter);
         peptideSetIter2 = peptideSetIter;
-        globalPeptideSet.erase(peptideSetIter);
+        someSet.erase(peptideSetIter);
         tempPep.parentProtein.insert(newPep.parentProtein.begin(), newPep.parentProtein.end() );
-        globalPeptideSet.insert(tempPep);
+        someSet.insert(tempPep);
     /*}
     else {
         Peptide tempPep = (*peptideSetIter);
@@ -78,10 +78,8 @@ void generateSemiCleaved( ) {
                   newPep.numMeth = (*peptideSetIter).numMeth - numPassedM;
                   newPep.parentProtein.insert((*peptideSetIter).parentProtein.begin(), (*peptideSetIter).parentProtein.end() );
                   peptideSetInsertResult = globalPeptideSet.insert(newPep);
-                  if( peptideSetInsertResult.second == false ) {
-                      peptideSetIter2 = peptideSetInsertResult.first;
-                      modifyParentProteinSet( peptideSetIter2, newPep);
-                  }
+                  if( peptideSetInsertResult.second == false )
+                      modifyParentProteinSet(globalPeptideSet, peptideSetInsertResult.first, newPep);
               }
               if( endPeptide( seq[i] ))
                   numPassedCleaveages++;
@@ -159,10 +157,13 @@ void findGoodPeptides(int peptideListLength, Protein::Protein p) {
                 potentialPep += (*peptideIter);
                 if(goodSequence(potentialPep.sequence) ) {
                     goodPeptideSet.insert(potentialPep);
-                    peptideSetInsertResult = globalPeptideSet.insert(potentialPep);
-                    if( peptideSetInsertResult.second == false ) {
-                        peptideSetIter = peptideSetInsertResult.first;
-                        modifyParentProteinSet(peptideSetIter, potentialPep);
+                    peptideSetInsertResult = goodPeptideSet.insert(potentialPep);
+                    if( peptideSetInsertResult.second == false)
+                        modifyParentProteinSet(goodPeptideSet, peptideSetInsertResult.first, potentialPep);
+                    else {
+                        peptideSetInsertResult = globalPeptideSet.insert(potentialPep);
+                        if( peptideSetInsertResult.second == false )
+                            modifyParentProteinSet(globalPeptideSet, peptideSetInsertResult.first, potentialPep);
                     }
                 }
             }

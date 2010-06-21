@@ -42,20 +42,20 @@ pair<set<Peptide>::iterator, bool> peptideSetInsertResult;
 #include "printHelpers.cpp"
 
 void modifyParentProteinSet( std::set<Peptide>::iterator peptideSetIter, Peptide::Peptide &newPep) {
-    if(peptideSetIter != globalPeptideSet.begin()) {
+    //if(peptideSetIter != globalPeptideSet.end()) {
         Peptide tempPep = (*peptideSetIter);
-        //peptideSetIter2 = peptideSetIter--;
+        peptideSetIter2 = peptideSetIter;
         globalPeptideSet.erase(peptideSetIter);
         tempPep.parentProtein.insert(newPep.parentProtein.begin(), newPep.parentProtein.end() );
         globalPeptideSet.insert(tempPep);
-        //globalPeptideSet.insert(peptideSetIter2, tempPep);
-    }
+    /*}
     else {
         Peptide tempPep = (*peptideSetIter);
+        peptideSetIter2 = peptideSetIter--;
         globalPeptideSet.erase(peptideSetIter);
         tempPep.parentProtein.insert(newPep.parentProtein.begin(), newPep.parentProtein.end() );
         globalPeptideSet.insert(tempPep);
-    }
+    }*/
 }
 
 void generateSemiCleaved( ) {

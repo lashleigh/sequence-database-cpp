@@ -36,6 +36,7 @@ struct class_comp {
 
 set<Peptide, class_comp> globalPeptideSet;
 set<Peptide>::iterator peptideSetIter;
+set<Peptide>::iterator peptideSetIter2;
 pair<set<Peptide>::iterator, bool> peptideSetInsertResult;
 
 void printProteins() {
@@ -119,6 +120,22 @@ int goodProteinSequence( string protSeq ) {
     return true;
 }
 
+void modifyParentProteinSet( std::set<Peptide>::iterator peptideSetIter, Peptide::Peptide newPep) {
+    if(peptideSetIter != globalPeptideSet.begin()) {
+        peptideSetIter2 = peptideSetIter--;
+        Peptide tempPep = (*peptideSetIter);
+        globalPeptideSet.erase(peptideSetIter);
+        tempPep.parentProtein.insert(newPep.parentProtein.begin(), newPep.parentProtein.end() );
+        globalPeptideSet.insert(peptideSetIter2, tempPep);
+    }
+    else {
+        Peptide tempPep = (*peptideSetIter);
+        globalPeptideSet.erase(peptideSetIter);
+        tempPep.parentProtein.insert(newPep.parentProtein.begin(), newPep.parentProtein.end() );
+        globalPeptideSet.insert(tempPep);
+    }
+}
+
 void generateSemiCleaved(Protein::Protein p) {
   for( peptideIter = goodPeptideList.begin(); peptideIter != goodPeptideList.end(); ++peptideIter) {
       string seq = (*peptideIter).sequence;
@@ -141,10 +158,7 @@ void generateSemiCleaved(Protein::Protein p) {
                   peptideSetInsertResult = globalPeptideSet.insert(newPep);
                   if( peptideSetInsertResult.second == false ) {
                       peptideSetIter = peptideSetInsertResult.first;
-                      Peptide tempPep = (*peptideSetIter);
-                      globalPeptideSet.erase(peptideSetIter);
-                      tempPep.parentProtein.insert(newPep.parentProtein.begin(), newPep.parentProtein.end() );
-                      globalPeptideSet.insert(tempPep);
+                      modifyParentProteinSet( peptideSetIter, newPep);
                   }
               }
               if( endPeptide( seq[i] ))
@@ -223,7 +237,11 @@ void findGoodPeptides(int peptideListLength, Protein::Protein p) {
                 potentialPep += (*peptideIter);
                 if(goodSequence(potentialPep.sequence) ) {
                     goodPeptideList.push_back(potentialPep);
-                    globalPeptideSet.insert(potentialPep);
+                    peptideSetInsertResult = globalPeptideSet.insert(potentialPep);
+                    if( peptideSetInsertResult.second == false ) {
+                        peptideSetIter = peptideSetInsertResult.first;
+                        modifyParentProteinSet(peptideSetIter, potentialPep);
+                    }
                 }
             }
             ++peptideIter;
@@ -262,7 +280,7 @@ int main(int argc, char* argv[]) {
             generateSemiCleaved(*proteinIter);
         goodPeptideList.clear();
     }
-    printSetOfAllPeptides();
+    //printSetOfAllPeptides();
     cout << "# proteins: " << proteinList.size() << endl;
     cout << "# tryptic:  " << numFullyTryptic << endl;
     cout << "# peptides: " << globalPeptideSet.size() << endl;

@@ -1,17 +1,18 @@
+
+#ifndef _HELPERS_CPP_
+#define _HELPERS_CPP_
+
 #include <iostream>
+#include <utility>
+#include <iomanip>
+#include <fstream>
+#include <locale>
+#include <list>
+#include <algorithm>
+#include <set>
 #include "header.hpp"
-#include "lists.cpp"
 
 using namespace std;
-
-void printProteins() {
-  int i = 0;
-  cout << endl;
-  for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
-      cout << i << "  " << (*proteinIter).name.substr(0, 7) << endl << (*proteinIter).sequence << endl << endl;
-      i++;
-  }
-}
 
 int badChar(char c) {
     if( c == '*' )
@@ -27,20 +28,32 @@ void checkForSpecialChar(char c, int &numPTS, int &numM) {
         numM++;
 }
 
-int endPeptide( string &pepSeq) {
-    if( pepSeq[pepSeq.length()-1] == 'K' )
+int endPeptide( char c) {
+    if( (c == 'K') or (c == 'R') )
         return true;
     else
         return false;
 }
 
-double massofPep( string seq ) {
+double massOfPep( string seq ) {
     double mass = 0;
     for( int i = 0; i < seq.length(); i++) {
-        //mass += aminoAcidMass( seq[i] );
-        cout << "..." << endl;
+        mass += aminoAcidMass[seq[i]];
     }
     return mass;
 }
 
+int goodSequence( string seq ) {
+    int len = seq.length();
+    double mass = massOfPep(seq);
+    if( (len >= MIN_LEN_PEPTIDE) and (len < MAX_LEN_PEPTIDE) and (mass > MIN_PEPTIDE_MASS) and (mass < MAX_PEPTIDE_MASS) )
+        return true;
+    else
+        return false;
+}
 
+int goodProteinSequence( string protSeq ) {
+    return true;
+}
+
+#endif

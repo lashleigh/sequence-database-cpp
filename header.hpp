@@ -5,9 +5,15 @@
 using namespace std;
 
 void printProteins();
+void printPeptide();
+void printSetOfAllPeptides();
+
 int badChar(char c);
 void checkForSpecialChar(char c, int &numPTS, int &numM);
-int endPeptide( string &pepSeq);
+int endPeptide( char c);
 double massofPep( string seq );
+
+int goodSequence( string seq );
+int goodProteinSequence( string protSeq );
 
 #endif

@@ -22,7 +22,6 @@ list<Protein> proteinList;
 list<Protein>::iterator proteinIter;
 
 list<Peptide> allPeptideList;
-list<Peptide> goodPeptideList;
 list<Peptide>::iterator peptideIter;
 
 struct class_comp {
@@ -35,98 +34,21 @@ struct class_comp {
 };
 
 set<Peptide, class_comp> globalPeptideSet;
+set<Peptide, class_comp> goodPeptideSet;
 set<Peptide>::iterator peptideSetIter;
 set<Peptide>::iterator peptideSetIter2;
 pair<set<Peptide>::iterator, bool> peptideSetInsertResult;
+#include "helpers.cpp"
+#include "printHelpers.cpp"
 
-void printProteins() {
-  cout << endl;
-  cout << "Number of Proteins: " << proteinList.size() << endl;
-  for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
-      cout << (*proteinIter).LibID << "\t" 
-          << (*proteinIter).name.substr(0, 7) << "\t" 
-          << (*proteinIter).sequence 
-          << endl << endl;
-  }
-}
-void printPeptide() {
-    cout << "Number of Peptides: " << goodPeptideList.size() << endl;
-    for( peptideIter = goodPeptideList.begin(); peptideIter != goodPeptideList.end(); ++peptideIter) {
-        cout << (*peptideIter).neutralMass << "\t" 
-            << (*peptideIter).numCleaveageChars << "\t" 
-            << (*peptideIter).numPhospho << "\t" 
-            << (*peptideIter).sequence << "\t" ;
-        
-    parentProteinIter = (*peptideIter).parentProtein.begin();
-    cout << *parentProteinIter << endl;
-    }
-}
-
-void printSetOfAllPeptides() {
-//    cout << "Number of Peptides: " << globalPeptideSet.size() << endl;
-    cout << "mass\t KR \t M \t PTS \t sequence" << endl;
-    for( peptideSetIter = globalPeptideSet.begin(); peptideSetIter != globalPeptideSet.end(); ++peptideSetIter) {
-        cout << (*peptideSetIter).neutralMass << "\t" 
-            << (*peptideSetIter).numCleaveageChars << "\t" 
-            << (*peptideSetIter).numMeth << "\t" 
-            << (*peptideSetIter).numPhospho << "\t" 
-            << (*peptideSetIter).sequence << "\t" ;
-            //<< (*peptideSetIter).parentProtein->name.substr(0,7) 
-        for(parentProteinIter = (*peptideSetIter).parentProtein.begin(); parentProteinIter != (*peptideSetIter).parentProtein.end(); ++parentProteinIter)
-            cout << *parentProteinIter << "  ";
-        cout <<endl;
-    }
-}
-
-int badChar(char c) {
-    if( c == '*' )
-        return true;
-    else
-        return false;
-}
-
-void checkForSpecialChar(char c, int &numPTS, int &numM) {
-    if( (c == 'P') || (c == 'S') || (c == 'T')) 
-        numPTS++;
-    else if( (c == 'M') )
-        numM++;
-}
-
-int endPeptide( char c) {
-    if( (c == 'K') or (c == 'R') )
-        return true;
-    else
-        return false;
-}
-
-double massOfPep( string seq ) {
-    double mass = 0;
-    for( int i = 0; i < seq.length(); i++) {
-        mass += aminoAcidMass[seq[i]];
-    }
-    return mass;
-}
-
-int goodSequence( string seq ) {
-    int len = seq.length();
-    double mass = massOfPep(seq);
-    if( (len >= MIN_LEN_PEPTIDE) and (len < MAX_LEN_PEPTIDE) and (mass > MIN_PEPTIDE_MASS) and (mass < MAX_PEPTIDE_MASS) )
-        return true;
-    else
-        return false;
-}
-
-int goodProteinSequence( string protSeq ) {
-    return true;
-}
-
-void modifyParentProteinSet( std::set<Peptide>::iterator peptideSetIter, Peptide::Peptide newPep) {
+void modifyParentProteinSet( std::set<Peptide>::iterator peptideSetIter, Peptide::Peptide &newPep) {
     if(peptideSetIter != globalPeptideSet.begin()) {
-        peptideSetIter2 = peptideSetIter--;
         Peptide tempPep = (*peptideSetIter);
+        //peptideSetIter2 = peptideSetIter--;
         globalPeptideSet.erase(peptideSetIter);
         tempPep.parentProtein.insert(newPep.parentProtein.begin(), newPep.parentProtein.end() );
-        globalPeptideSet.insert(peptideSetIter2, tempPep);
+        globalPeptideSet.insert(tempPep);
+        //globalPeptideSet.insert(peptideSetIter2, tempPep);
     }
     else {
         Peptide tempPep = (*peptideSetIter);
@@ -136,9 +58,9 @@ void modifyParentProteinSet( std::set<Peptide>::iterator peptideSetIter, Peptide
     }
 }
 
-void generateSemiCleaved(Protein::Protein p) {
-  for( peptideIter = goodPeptideList.begin(); peptideIter != goodPeptideList.end(); ++peptideIter) {
-      string seq = (*peptideIter).sequence;
+void generateSemiCleaved( ) {
+  for( peptideSetIter = goodPeptideSet.begin(); peptideSetIter != goodPeptideSet.end(); ++peptideSetIter) {
+      string seq = (*peptideSetIter).sequence;
       int numPassedCleaveages = 0,
           numPassedPTS = 0,
           numPassedM = 0;
@@ -146,19 +68,19 @@ void generateSemiCleaved(Protein::Protein p) {
           numPassedCleaveages++;
       checkForSpecialChar(seq[0], numPassedPTS, numPassedM);
       for( int i = 1; i < seq.length(); i++ ) {
-          if( numPassedCleaveages < max(1, (*peptideIter).numCleaveageChars - 1) ) {
+          if( numPassedCleaveages < max(1, (*peptideSetIter).numCleaveageChars - 1) ) {
               if( goodSequence( seq.substr(i, seq.length() - i) ) ) {
                   Peptide newPep;
                   newPep.sequence = seq.substr(i, seq.length() - i);
                   newPep.neutralMass = massOfPep(seq.substr(i, seq.length() - i) );
-                  newPep.numCleaveageChars = (*peptideIter).numCleaveageChars - numPassedCleaveages;
-                  newPep.numPhospho = (*peptideIter).numPhospho - numPassedPTS ;
-                  newPep.numMeth = (*peptideIter).numMeth - numPassedM;
-                  newPep.parentProtein.insert((*peptideIter).parentProtein.begin(), (*peptideIter).parentProtein.end() );
+                  newPep.numCleaveageChars = (*peptideSetIter).numCleaveageChars - numPassedCleaveages;
+                  newPep.numPhospho = (*peptideSetIter).numPhospho - numPassedPTS ;
+                  newPep.numMeth = (*peptideSetIter).numMeth - numPassedM;
+                  newPep.parentProtein.insert((*peptideSetIter).parentProtein.begin(), (*peptideSetIter).parentProtein.end() );
                   peptideSetInsertResult = globalPeptideSet.insert(newPep);
                   if( peptideSetInsertResult.second == false ) {
-                      peptideSetIter = peptideSetInsertResult.first;
-                      modifyParentProteinSet( peptideSetIter, newPep);
+                      peptideSetIter2 = peptideSetInsertResult.first;
+                      modifyParentProteinSet( peptideSetIter2, newPep);
                   }
               }
               if( endPeptide( seq[i] ))
@@ -195,7 +117,7 @@ void getProteins(ifstream &inputStream) {
   proteinList.push_back(Protein(libID, local_name, local_seq));
 }
 
-string findNextPeptide(Peptide::Peptide &pep, string seq, Protein::Protein p ) {
+string findNextPeptide(Peptide::Peptide &pep, string seq, Protein::Protein &p ) {
     string pepSeq = "";
     int numPTS = 0;
     int numM = 0;
@@ -218,7 +140,7 @@ string findNextPeptide(Peptide::Peptide &pep, string seq, Protein::Protein p ) {
     return("");
 }
 
-void digest(string protSequence, Protein::Protein p) {
+void digest(string protSequence, Protein::Protein &p) {
     if( protSequence.length() > 0 ) {
         Peptide pep;
         string next_sequence = findNextPeptide(pep, protSequence, p);
@@ -236,7 +158,7 @@ void findGoodPeptides(int peptideListLength, Protein::Protein p) {
             if(i < peptideListLength) {
                 potentialPep += (*peptideIter);
                 if(goodSequence(potentialPep.sequence) ) {
-                    goodPeptideList.push_back(potentialPep);
+                    goodPeptideSet.insert(potentialPep);
                     peptideSetInsertResult = globalPeptideSet.insert(potentialPep);
                     if( peptideSetInsertResult.second == false ) {
                         peptideSetIter = peptideSetInsertResult.first;
@@ -268,19 +190,19 @@ int main(int argc, char* argv[]) {
 
     INITIALIZE_MASS(aminoAcidMass, 1);
     getProteins(inputStream);
-    //printProteins();
-    int numFullyTryptic = 0;
+    printProteins();
     for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
         digest( (*proteinIter).sequence, *proteinIter );
         int j = allPeptideList.size();
         findGoodPeptides(j, *proteinIter);
         //printPeptide();
-        numFullyTryptic += goodPeptideList.size();
-        if( SEMI_TRYPTIC == true)
-            generateSemiCleaved(*proteinIter);
-        goodPeptideList.clear();
+        if(!allPeptideList.empty())
+            cout << "failure" << endl;
     }
-    //printSetOfAllPeptides();
+    int numFullyTryptic = goodPeptideSet.size();
+    if( SEMI_TRYPTIC == true)
+        generateSemiCleaved();
+    printSetOfAllPeptides();
     cout << "# proteins: " << proteinList.size() << endl;
     cout << "# tryptic:  " << numFullyTryptic << endl;
     cout << "# peptides: " << globalPeptideSet.size() << endl;

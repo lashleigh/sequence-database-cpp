@@ -1,20 +1,14 @@
-main: main.cpp helpers.cpp peptide.cpp protein.cpp
-	g++ -o main main.cpp helpers.cpp peptide.cpp protein.cpp
+main: main.cpp helpers.cpp
+	g++ -o main main.cpp helpers.cpp
 
-main.o: main.cpp
+main.o: main.cpp header.hpp constants.hpp AminoAcidMasses.h
 	g++ -c main.cpp
 
-helpers.o: helpers.cpp
-	g++ -c helpers.cpp
-
-peptide.o: peptide.cpp
-	g++ -c peptide.cpp
-
-protein.o: protein.cpp
-	g++ -c protein.cpp
+helpers.o: helpers.cpp header.hpp constants.hpp
+	g++ -c helpers.cpp 
 
 run:
-	./main
+	./main test.fasta
 
 clean:
 	rm *.o main

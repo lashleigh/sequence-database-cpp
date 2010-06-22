@@ -13,9 +13,9 @@
 #include "protein.hpp"
 #include "AminoAcidMasses.h"
 #include "constants.hpp"
+#include "header.hpp"
 //#include "lists.cpp"
 using namespace std;
-
 double aminoAcidMass[128];
 
 list<Protein> proteinList;
@@ -39,7 +39,6 @@ set<Peptide>::iterator peptideSetIter;
 set<Peptide>::iterator peptideSetIter2;
 set<Peptide>::iterator tempIt;
 pair<set<Peptide>::iterator, bool> peptideSetInsertResult;
-#include "helpers.cpp"
 #include "printHelpers.cpp"
 
 void modifyParentProteinSet(std::set<Peptide, class_comp> &someSet, std::set<Peptide>::iterator someIter, Peptide::Peptide &newPep) {

@@ -10,6 +10,7 @@
 #include <list>
 #include <algorithm>
 #include <set>
+#include "constants.hpp"
 #include "header.hpp"
 
 using namespace std;

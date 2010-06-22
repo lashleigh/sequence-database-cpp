@@ -14,25 +14,17 @@
 
 using namespace std;
 
-int badChar(char c) {
-    if( c == '*' )
-        return true;
-    else
-        return false;
-}
+int badChar(char c)
+    return( c=='*' );
+
+int endPeptide( char c)
+    return( (c == 'K') or (c == 'R') );
 
 void checkForSpecialChar(char c, int &numPTS, int &numM) {
     if( (c == 'P') || (c == 'S') || (c == 'T')) 
         numPTS++;
     else if( (c == 'M') )
         numM++;
-}
-
-int endPeptide( char c) {
-    if( (c == 'K') or (c == 'R') )
-        return true;
-    else
-        return false;
 }
 
 double massOfPep( string seq ) {
@@ -46,10 +38,7 @@ double massOfPep( string seq ) {
 int goodSequence( string seq ) {
     int len = seq.length();
     double mass = massOfPep(seq);
-    if( (len >= MIN_LEN_PEPTIDE) and (len < MAX_LEN_PEPTIDE) and (mass > MIN_PEPTIDE_MASS) and (mass < MAX_PEPTIDE_MASS) )
-        return true;
-    else
-        return false;
+    return( (len >= MIN_LEN_PEPTIDE) and (len < MAX_LEN_PEPTIDE) and (mass > MIN_PEPTIDE_MASS) and (mass < MAX_PEPTIDE_MASS) );
 }
 
 int goodProteinSequence( string protSeq ) {

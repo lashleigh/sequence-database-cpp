@@ -29,26 +29,23 @@ void printPeptide() {
     cout << "Number of Peptides: " << goodPeptideSet.size() << endl;
     for( peptideSetIter = goodPeptideSet.begin(); peptideSetIter != goodPeptideSet.end(); ++peptideSetIter) {
         cout << (*peptideSetIter).neutralMass << " " 
-            << (*peptideSetIter).numCleaveageChars << " " 
-            << (*peptideSetIter).numPhospho << " " 
-            << (*peptideSetIter).sequence << " " ;
-        
-    //parentProteinIter = (*peptideSetIter).parentProtein.begin();
-    cout << *parentProteinIter << endl;
+            << (*peptideSetIter).sequenceStartPosition << " " 
+            << (*peptideSetIter).sequenceLength << " " 
+            << (*peptideSetIter).sequence << " " 
+            << endl;
     }
 }
 
 void printSetOfAllPeptides() {
-//    cout << "Number of Peptides: " << globalPeptideSet.size() << endl;
     cout << "mass\tKR\tM\tPTS\tsequence" << endl;
     for( peptideSetIter = globalPeptideSet.begin(); peptideSetIter != globalPeptideSet.end(); ++peptideSetIter) {
           cout 
-    //      << (*peptideSetIter).neutralMass << " " 
-            << (*peptideSetIter).numCleaveageChars << " " 
-            << (*peptideSetIter).numMeth << " " 
-            << (*peptideSetIter).numPhospho << " " 
+            << (*peptideSetIter).neutralMass << " " 
+            << (*peptideSetIter).sequenceStartPosition << " " 
+            << (*peptideSetIter).sequenceLength << " " 
+            << (*peptideSetIter).numCleaveageChars << " "
+      //      << (*peptideSetIter).numPhospho << " " 
             << (*peptideSetIter).sequence << " " ;
-            //<< (*peptideSetIter).parentProtein->name.substr(0,7) 
         for(parentProteinIter = (*peptideSetIter).parentProtein.begin(); parentProteinIter != (*peptideSetIter).parentProtein.end(); ++parentProteinIter)
             cout << *parentProteinIter << "  ";
         cout <<endl;

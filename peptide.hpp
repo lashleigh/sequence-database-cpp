@@ -17,12 +17,14 @@ class Peptide {
     public:
         std::string sequence;
         double neutralMass;
+        int sequenceStartPosition;
+        int sequenceLength;
         int numCleaveageChars;
         int numPhospho;
         int numMeth;
         std::set<int, protein_comp> parentProtein;
         Peptide();
-        Peptide(std::string, double, int, int, int, std::set<int, protein_comp>);
+        Peptide(std::string, double, int, int, int, int, int, std::set<int, protein_comp>);
         Peptide operator+= (Peptide);
 };
 

@@ -74,6 +74,8 @@ void generateSemiCleaved( ) {
                   Peptide newPep;
                   newPep.sequence = seq.substr(i, seq.length() - i);
                   newPep.neutralMass = massOfPep(seq.substr(i, seq.length() - i) );
+                  newPep.sequenceStartPosition = (*peptideSetIter).sequenceStartPosition + i;
+                  newPep.sequenceLength = newPep.sequence.length();
                   newPep.numCleaveageChars = (*peptideSetIter).numCleaveageChars - numPassedCleaveages;
                   newPep.numPhospho = (*peptideSetIter).numPhospho - numPassedPTS ;
                   newPep.numMeth = (*peptideSetIter).numMeth - numPassedM;
@@ -128,6 +130,8 @@ string findNextPeptide(Peptide::Peptide &pep, string seq, Protein::Protein &p ) 
         if( endPeptide(seq[i]) ) {
             pep.sequence = pepSeq;
             pep.neutralMass = massOfPep(pepSeq);
+            pep.sequenceStartPosition = p.sequence.length() - seq.length();
+            pep.sequenceLength = i + 1; // This is equivalent but faster than calling pepSeq.length()
             pep.numCleaveageChars = 1;
             pep.numPhospho = numPTS;
             pep.numMeth = numM;
@@ -186,6 +190,8 @@ int main(int argc, char* argv[]) {
         cout << "  The supplied file could not be opened" << endl << endl;
         exit(1);
     }
+    ofstream outputStream;
+    outputStream.open("output.txt");
 
     INITIALIZE_MASS(aminoAcidMass, 1);
     getProteins(inputStream);
@@ -194,17 +200,19 @@ int main(int argc, char* argv[]) {
         digest( (*proteinIter).sequence, *proteinIter );
         int j = allPeptideList.size();
         findGoodPeptides(j, *proteinIter);
-        //printPeptide();
         if(!allPeptideList.empty())
             cout << "failure" << endl;
     }
     int numFullyTryptic = goodPeptideSet.size();
     if( SEMI_TRYPTIC == true)
         generateSemiCleaved();
+    //printPeptide();
     printSetOfAllPeptides();
     cout << "# proteins: " << proteinList.size() << endl;
     cout << "# tryptic:  " << numFullyTryptic << endl;
     cout << "# peptides: " << globalPeptideSet.size() << endl;
+   // for( peptideIter = globalPeptideSet.begin(); peptideIter != globalPeptideSet.end(); ++peptideIter) {
+   //     outputStream.write
 
     return 0;
 }

@@ -14,11 +14,13 @@
 
 using namespace std;
 
-int badChar(char c)
-    return( c=='*' );
+int badChar(char c) {
+    return(c == '*');
+}
 
-int endPeptide( char c)
+int endPeptide( char c) {
     return( (c == 'K') or (c == 'R') );
+}
 
 void checkForSpecialChar(char c, int &numPTS, int &numM) {
     if( (c == 'P') || (c == 'S') || (c == 'T')) 

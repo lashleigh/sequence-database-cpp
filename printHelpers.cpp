@@ -19,7 +19,7 @@ void printProteins() {
   cout << "Number of Proteins: " << proteinList.size() << endl;
   for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
       cout << (*proteinIter).LibID << "\t" 
-          << (*proteinIter).name.substr(0, 7) << "\t" 
+          << (*proteinIter).name.substr(0, 7) << "\t" << endl
           << (*proteinIter).sequence 
           << endl << endl;
   }

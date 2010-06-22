@@ -28,5 +28,14 @@ class Peptide {
         Peptide operator+= (Peptide);
 };
 
+std::ostream& operator<<(std::ostream& os, const Peptide::Peptide &pep) {
+    os << pep.neutralMass << " "
+        << pep.sequenceStartPosition << " "
+        << pep.sequenceLength << " "
+        << pep.sequence << std::endl;
+    return os;
+}
+
+
 #endif
 

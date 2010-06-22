@@ -194,24 +194,26 @@ int main(int argc, char* argv[]) {
 
     INITIALIZE_MASS(aminoAcidMass, 1);
     getProteins(inputStream);
-    printProteins();
+    //printProteins();
     for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++proteinIter) {
         digest( (*proteinIter).sequence, *proteinIter );
         int j = allPeptideList.size();
         findGoodPeptides(j, *proteinIter);
         if(!allPeptideList.empty())
             cout << "failure" << endl;
+        outputStream << *proteinIter;
     }
     int numFullyTryptic = goodPeptideSet.size();
     if( SEMI_TRYPTIC == true)
         generateSemiCleaved();
     //printPeptide();
-    printSetOfAllPeptides();
-    cout << "# proteins: " << proteinList.size() << endl;
-    cout << "# tryptic:  " << numFullyTryptic << endl;
-    cout << "# peptides: " << globalPeptideSet.size() << endl;
-   // for( peptideIter = globalPeptideSet.begin(); peptideIter != globalPeptideSet.end(); ++peptideIter) {
-   //     outputStream.write
+    //printSetOfAllPeptides();
+    outputStream << "# proteins: " << proteinList.size() << endl;
+    outputStream << "# tryptic:  " << numFullyTryptic << endl;
+    outputStream << "# peptides: " << globalPeptideSet.size() << endl;
+    for( peptideSetIter = globalPeptideSet.begin(); peptideSetIter != globalPeptideSet.end(); ++peptideSetIter) {
+        outputStream << *peptideSetIter;
+    }
 
     return 0;
 }

@@ -1,1 +1,52 @@
-The code does not currently Make and I am having problems with git
+This is the library creation module of a much larger project. 
+The basic idea is to generate peptides from artificially digested 
+proteins. 
+
+Simply type 'Make' and the 'make run' to run the supplied fasta file 
+test.fasta. Make generates an executable called 'main'. To digest other 
+fasta files simple type: ./main test.fasta
+
+The premise of the program is simple, given a protein:
+
+LLHSLKIHNNTASQKTALMEQYDRYLIVENLYYRGLVSQDINIMQNVFYKELLAHVDTIP
+
+If cleaved at all K's and R's (trypsin), this protein would generate fragments like this:
+691.438 LLHSLK
+993.499 IHNNTASQK
+1107.5  TALMEQYDR
+1326.7  YLIVENLYYR
+1684.94 LLHSLKIHNNTASQK
+1849.94 GLVSQDINIMQNVFYK
+2101    IHNNTASQKTALMEQYDR
+2434.2  TALMEQYDRYLIVENLYYR
+3176.64 YLIVENLYYRGLVSQDINIMQNVFYK
+
+Where the first column correspond to the neutral mass of the 
+fragments. Amino acid masses are defined in AminoAcidMasses.h.
+
+It is also possible that trypsin might not digest everything perfectly. 
+There are two types of imperfect digestion, missed cleaveage and semi-tryptic. 
+A missed cleaveage would correspond to a simple concatenation of two adjacent 
+fully tryptic peptides:
+
+LLHSLK + IHNNTASQK = LLHSLKIHNNTASQK
+
+Semi-tryptic means that only one end of the peptide has a tryptic termini.
+Example, all semi tryptic peptides of GLVSQDINIMQNVFYK:
+G LVSQDINIMQNVFYK
+GL VSQDINIMQNVFYK
+GLV SQDINIMQNVFYK
+GLVS QDINIMQNVFYK
+GLVSQ DINIMQNVFYK
+GLVSQD INIMQNVFYK
+GLVSQDI NIMQNVFYK
+GLVSQDIN IMQNVFYK
+GLVSQDINI MQNVFYK
+GLVSQDINIM QNVFYK
+GLVSQDINIMQ NVFYK
+GLVSQDINIMQN VFYK
+GLVSQDINIMQNV FYK
+GLVSQDINIMQNVF YK
+GLVSQDINIMQNVFY K
+
+

@@ -61,6 +61,7 @@ void modifyParentProteinSet(std::set<Peptide, class_comp> &someSet, std::set<Pep
 void generateSemiCleaved( ) {
   for( peptideSetIter = goodPeptideSet.begin(); peptideSetIter != goodPeptideSet.end(); ++peptideSetIter) {
       string seq = (*peptideSetIter).sequence;
+      string rightSeq, leftSeq;
       int numPassedCleaveages = 0,
           numPassedPTS = 0,
           numPassedM = 0;
@@ -69,10 +70,11 @@ void generateSemiCleaved( ) {
       checkForSpecialChar(seq[0], numPassedPTS, numPassedM);
       for( int i = 1; i < seq.length(); i++ ) {
           if( numPassedCleaveages < max(1, (*peptideSetIter).numCleaveageChars - 1) ) {
-              if( goodSequence( seq.substr(i, seq.length() - i) ) ) {
+              rightSeq = seq.substr(i, seq.length() - i);
+              if( goodSequence( rightSeq ) ) {
                   Peptide newPep;
-                  newPep.sequence = seq.substr(i, seq.length() - i);
-                  newPep.neutralMass = massOfPep(seq.substr(i, seq.length() - i) );
+                  newPep.sequence = rightSeq;
+                  newPep.neutralMass = massOfPep( rightSeq );
                   newPep.sequenceStartPosition = (*peptideSetIter).sequenceStartPosition + i;
                   newPep.sequenceLength = newPep.sequence.length();
                   newPep.numCleaveageChars = (*peptideSetIter).numCleaveageChars - numPassedCleaveages;
@@ -83,10 +85,28 @@ void generateSemiCleaved( ) {
                   if( peptideSetInsertResult.second == false )
                       modifyParentProteinSet(globalPeptideSet, peptideSetInsertResult.first, newPep);
               }
-              if( endPeptide( seq[i] ))
-                  numPassedCleaveages++;
-              checkForSpecialChar(seq[i], numPassedPTS, numPassedM);
           }
+          if( numPassedCleaveages >= max( (*peptideSetIter).numCleaveageChars - 1, 0 ) ) {
+              leftSeq = seq.substr(0, i);
+              if( goodSequence( leftSeq) ) {
+                  Peptide newPep;
+                  newPep.sequence = leftSeq;
+                  newPep.neutralMass = massOfPep( leftSeq );
+                  newPep.sequenceStartPosition = (*peptideSetIter).sequenceStartPosition;
+                  newPep.sequenceLength = newPep.sequence.length();
+                  newPep.numCleaveageChars = numPassedCleaveages;
+                  newPep.numPhospho = numPassedPTS ;
+                  newPep.numMeth = numPassedM;
+                  newPep.parentProtein.insert((*peptideSetIter).parentProtein.begin(), (*peptideSetIter).parentProtein.end() );
+                  peptideSetInsertResult = globalPeptideSet.insert(newPep);
+                  if( peptideSetInsertResult.second == false )
+                      modifyParentProteinSet(globalPeptideSet, peptideSetInsertResult.first, newPep);
+              }
+          }
+          cout << seq << " " << leftSeq << " " << rightSeq << endl;
+          if( endPeptide( seq[i] ))
+              numPassedCleaveages++;
+          checkForSpecialChar(seq[i], numPassedPTS, numPassedM);
       }
   }
 }
@@ -190,7 +210,7 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
     ofstream outputStream;
-    outputStream.open("output.txt");
+    outputStream.open("output.txt", ofstream::binary);
 
     INITIALIZE_MASS(aminoAcidMass, 1);
     getProteins(inputStream);
@@ -201,7 +221,6 @@ int main(int argc, char* argv[]) {
         findGoodPeptides(j, *proteinIter);
         if(!allPeptideList.empty())
             cout << "failure" << endl;
-        outputStream << *proteinIter;
     }
     int numFullyTryptic = goodPeptideSet.size();
     if( SEMI_TRYPTIC == true)
@@ -211,6 +230,8 @@ int main(int argc, char* argv[]) {
     outputStream << "# proteins: " << proteinList.size() << endl;
     outputStream << "# tryptic:  " << numFullyTryptic << endl;
     outputStream << "# peptides: " << globalPeptideSet.size() << endl;
+    for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++ proteinIter) 
+        outputStream << *proteinIter;
     for( peptideSetIter = globalPeptideSet.begin(); peptideSetIter != globalPeptideSet.end(); ++peptideSetIter) {
         outputStream << *peptideSetIter;
     }

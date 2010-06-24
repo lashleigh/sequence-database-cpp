@@ -13,7 +13,7 @@ class Protein {
 
 std::ostream& operator<<(std::ostream& os, const Protein::Protein &p) {
     os << p.LibID << " "
-        << p.name << std::endl
+        //<< p.name << std::endl
         << p.sequence << std::endl;
     return os;
 }

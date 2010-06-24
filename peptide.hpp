@@ -32,9 +32,10 @@ std::ostream& operator<<(std::ostream& os, const Peptide::Peptide &pep) {
     os << pep.neutralMass << "\t";
         //<< pep.sequenceStartPosition << " "
         //<< pep.sequenceLength << " "
-        os << pep.sequence << std::endl;
+        os << pep.sequence;
         for( parentProteinIter = pep.parentProtein.begin(); parentProteinIter != pep.parentProtein.end(); ++parentProteinIter)
             os << *parentProteinIter << " ";
+        os << std::endl;
     return os;
 }
 

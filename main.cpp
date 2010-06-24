@@ -103,7 +103,7 @@ void generateSemiCleaved( ) {
                       modifyParentProteinSet(globalPeptideSet, peptideSetInsertResult.first, newPep);
               }
           }
-          cout << seq << " " << leftSeq << " " << rightSeq << endl;
+          //cout << seq << " " << leftSeq << " " << rightSeq << endl;
           if( endPeptide( seq[i] ))
               numPassedCleaveages++;
           checkForSpecialChar(seq[i], numPassedPTS, numPassedM);
@@ -230,8 +230,8 @@ int main(int argc, char* argv[]) {
     outputStream << "# proteins: " << proteinList.size() << endl;
     outputStream << "# tryptic:  " << numFullyTryptic << endl;
     outputStream << "# peptides: " << globalPeptideSet.size() << endl;
-    for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++ proteinIter) 
-        outputStream << *proteinIter;
+    //for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++ proteinIter) 
+    //    outputStream << *proteinIter;
     for( peptideSetIter = globalPeptideSet.begin(); peptideSetIter != globalPeptideSet.end(); ++peptideSetIter) {
         outputStream << *peptideSetIter;
     }

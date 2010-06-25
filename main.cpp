@@ -272,6 +272,7 @@ int main(int argc, char* argv[]) {
         generateSemiCleaved();
     //printPeptide();
     //printSetOfAllPeptides();
+    outputStream << proteinList.size() << " " << globalPeptideSet.size() << "\n";
     outputStream << "# proteins: " << proteinList.size() << endl;
     outputStream << "# tryptic:  " << numFullyTryptic << endl;
     outputStream << "# peptides: " << globalPeptideSet.size() << endl;
@@ -281,6 +282,8 @@ int main(int argc, char* argv[]) {
     DensityStruct *dStruct;
     dStruct = (DensityStruct*) malloc( (MAX_PEPTIDE_MASS)*DENSITY_MULTIPLIER*sizeof(DensityStruct));
     generateDensity(dStruct);
+    for(int i = 0; i < MAX_PEPTIDE_MASS*DENSITY_MULTIPLIER; i++)
+        outputStream << dStruct[i].numEntries << " " << dStruct[i].firstEntry << "\n";
     for( peptideSetIter = globalPeptideSet.begin(); peptideSetIter != globalPeptideSet.end(); ++peptideSetIter) {
         outputStream << *peptideSetIter;
     }

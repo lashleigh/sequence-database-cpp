@@ -32,6 +32,7 @@ std::ostream& operator<<(std::ostream& os, const Peptide::Peptide &pep) {
     //os.precision(15);
     os << pep.neutralMass << " "
         << pep.sequence << " "
+        << pep.sequenceLength << " "
         << pep.numCleaveageChars << " "
         << pep.numPhospho << " "
         << pep.numMeth << " ";

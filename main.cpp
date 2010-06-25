@@ -35,6 +35,7 @@ struct class_comp {
 
 set<Peptide, class_comp> globalPeptideSet;
 set<Peptide, class_comp> goodPeptideSet;
+set<Peptide>::reverse_iterator revPepSetIter;
 set<Peptide>::iterator peptideSetIter;
 set<Peptide>::iterator peptideSetIter2;
 set<Peptide>::iterator tempIt;
@@ -194,6 +195,50 @@ void findGoodPeptides(int peptideListLength, Protein::Protein p) {
         --peptideListLength;
     }
 }
+/*
+void POPULATE_DENSITY(DensityStruct *dStruct) {
+    int i, mw_int;
+    int last = MAX_PEPTIDE_MASS*DENSITY_MULTIPLIER;
+    for(i = 0; i < lLibID; i++) {
+        mw_int = (int) (pDetails[i].MW * DENSITY_MULTIPLIER) ;
+        dStruct[mw_int].NumEntries += 1;
+        if( i > dStruct[mw_int].LastLoc)
+            dStruct[mw_int].LastLoc = i;
+        if( i < dStruct[mw_int].FirstLoc)
+            dStruct[mw_int].FirstLoc = i;
+    }
+    if(dStruct[last-1].NumEntries = 0) {
+        dStruct[last].FirstLoc = lLibID;
+        dStruct[last].LastLoc = lLibID;
+    }
+    if(dStruct[0].NumEntries = 0) {
+        dStruct[0].FirstLoc = 0;
+        dStruct[0].LastLoc = 0;
+    }
+    for(i = last-2; i > 0; i--) {
+        if( dStruct[i].NumEntries == 0) {
+            dStruct[i].FirstLoc = dStruct[i+1].FirstLoc;
+            dStruct[i].LastLoc  = dStruct[i+1].FirstLoc;
+        }
+    }
+}*/
+
+// By going through the list backwards I can ensure the first entry.
+void generateDensity( DensityStruct *dStruct) {
+    int i, mw_int;
+    for(i = 0; i < MAX_PEPTIDE_MASS*DENSITY_MULTIPLIER; i++) {
+        dStruct[i].numEntries = 0;
+        dStruct[i].firstEntry = 0;
+    }
+    for(i = globalPeptideSet.size(), revPepSetIter = globalPeptideSet.rbegin(); revPepSetIter != globalPeptideSet.rend(); --i, ++revPepSetIter) {
+        mw_int = (int) ( (*revPepSetIter).neutralMass*DENSITY_MULTIPLIER);
+        dStruct[mw_int].numEntries += 1;
+        dStruct[mw_int].firstEntry = i;
+    }
+    /*for(i = 0; i < MAX_PEPTIDE_MASS*DENSITY_MULTIPLIER; i++) {
+        cout << i << " " << dStruct[i].numEntries << " " << dStruct[i].firstEntry << endl;
+    }*/
+}
 
 int main(int argc, char* argv[]) {
     if(argc < 2) {
@@ -232,6 +277,10 @@ int main(int argc, char* argv[]) {
     outputStream << "# peptides: " << globalPeptideSet.size() << endl;
     //for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++ proteinIter) 
     //    outputStream << *proteinIter;
+    //
+    DensityStruct *dStruct;
+    dStruct = (DensityStruct*) malloc( (MAX_PEPTIDE_MASS)*DENSITY_MULTIPLIER*sizeof(DensityStruct));
+    generateDensity(dStruct);
     for( peptideSetIter = globalPeptideSet.begin(); peptideSetIter != globalPeptideSet.end(); ++peptideSetIter) {
         outputStream << *peptideSetIter;
     }

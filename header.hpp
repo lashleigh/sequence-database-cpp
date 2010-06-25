@@ -5,6 +5,11 @@
 
 extern double aminoAcidMass[128];
 
+typedef struct {
+    int numEntries;
+    int firstEntry;
+} DensityStruct;
+
 void printProteins();
 void printPeptide();
 void printSetOfAllPeptides();

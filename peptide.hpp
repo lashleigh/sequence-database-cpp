@@ -29,12 +29,17 @@ class Peptide {
 };
 
 std::ostream& operator<<(std::ostream& os, const Peptide::Peptide &pep) {
-    os << pep.neutralMass << "\t";
+    //os.precision(15);
+    os << pep.neutralMass << " "
+        << pep.sequence << " "
+        << pep.numCleaveageChars << " "
+        << pep.numPhospho << " "
+        << pep.numMeth << " ";
         for( parentProteinIter = pep.parentProtein.begin(); parentProteinIter != pep.parentProtein.end(); ++parentProteinIter)
             os << *parentProteinIter << " ";
         //<< pep.sequenceStartPosition << " "
         //<< pep.sequenceLength << " "
-        os << pep.sequence << std::endl;
+        os << std::endl;
     return os;
 }
 

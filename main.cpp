@@ -75,7 +75,7 @@ void generateSemiCleaved( ) {
               if( goodSequence( rightSeq ) ) {
                   Peptide newPep;
                   newPep.sequence = rightSeq;
-                  newPep.neutralMass = massOfPep( rightSeq ) + aminoAcidMass['o'] + 2*aminoAcidMass['h'] + PROTON_MASS ;
+                  newPep.neutralMass = massOfPep( rightSeq ) + aminoAcidMass['o'] + 2*aminoAcidMass['h'];
                   newPep.sequenceStartPosition = (*peptideSetIter).sequenceStartPosition + i;
                   newPep.sequenceLength = newPep.sequence.length();
                   newPep.numCleaveageChars = (*peptideSetIter).numCleaveageChars - numPassedCleaveages;
@@ -92,7 +92,7 @@ void generateSemiCleaved( ) {
               if( goodSequence( leftSeq) ) {
                   Peptide newPep;
                   newPep.sequence = leftSeq;
-                  newPep.neutralMass = massOfPep( leftSeq ) + aminoAcidMass['o'] + 2*aminoAcidMass['h'] + PROTON_MASS ;
+                  newPep.neutralMass = massOfPep( leftSeq ) + aminoAcidMass['o'] + 2*aminoAcidMass['h'];
                   newPep.sequenceStartPosition = (*peptideSetIter).sequenceStartPosition;
                   newPep.sequenceLength = newPep.sequence.length();
                   newPep.numCleaveageChars = numPassedCleaveages;
@@ -184,7 +184,7 @@ void findGoodPeptides(int peptideListLength, Protein::Protein p) {
                     peptideSetInsertResult = goodPeptideSet.insert(potentialPep);
                     if( peptideSetInsertResult.second == false)
                         modifyParentProteinSet(goodPeptideSet, peptideSetInsertResult.first, potentialPep);
-                    potentialPep.neutralMass += aminoAcidMass['o'] + 2*aminoAcidMass['h'] + PROTON_MASS;
+                    potentialPep.neutralMass += aminoAcidMass['o'] + 2*aminoAcidMass['h'];
                     peptideSetInsertResult = globalPeptideSet.insert(potentialPep);
                     if( peptideSetInsertResult.second == false )
                         modifyParentProteinSet(globalPeptideSet, peptideSetInsertResult.first, potentialPep);

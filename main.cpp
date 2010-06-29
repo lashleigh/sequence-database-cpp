@@ -75,7 +75,7 @@ void generateSemiCleaved( ) {
               if( goodSequence( rightSeq ) ) {
                   Peptide newPep;
                   newPep.sequence = rightSeq;
-                  newPep.neutralMass = massOfPep( rightSeq );
+                  newPep.neutralMass = massOfPep( rightSeq ) + aminoAcidMass['o'] + 2*aminoAcidMass['h'] + PROTON_MASS ;
                   newPep.sequenceStartPosition = (*peptideSetIter).sequenceStartPosition + i;
                   newPep.sequenceLength = newPep.sequence.length();
                   newPep.numCleaveageChars = (*peptideSetIter).numCleaveageChars - numPassedCleaveages;
@@ -92,7 +92,7 @@ void generateSemiCleaved( ) {
               if( goodSequence( leftSeq) ) {
                   Peptide newPep;
                   newPep.sequence = leftSeq;
-                  newPep.neutralMass = massOfPep( leftSeq );
+                  newPep.neutralMass = massOfPep( leftSeq ) + aminoAcidMass['o'] + 2*aminoAcidMass['h'] + PROTON_MASS ;
                   newPep.sequenceStartPosition = (*peptideSetIter).sequenceStartPosition;
                   newPep.sequenceLength = newPep.sequence.length();
                   newPep.numCleaveageChars = numPassedCleaveages;
@@ -184,6 +184,7 @@ void findGoodPeptides(int peptideListLength, Protein::Protein p) {
                     peptideSetInsertResult = goodPeptideSet.insert(potentialPep);
                     if( peptideSetInsertResult.second == false)
                         modifyParentProteinSet(goodPeptideSet, peptideSetInsertResult.first, potentialPep);
+                    potentialPep.neutralMass += aminoAcidMass['o'] + 2*aminoAcidMass['h'] + PROTON_MASS;
                     peptideSetInsertResult = globalPeptideSet.insert(potentialPep);
                     if( peptideSetInsertResult.second == false )
                         modifyParentProteinSet(globalPeptideSet, peptideSetInsertResult.first, potentialPep);
@@ -272,6 +273,10 @@ int main(int argc, char* argv[]) {
         generateSemiCleaved();
     //printPeptide();
     //printSetOfAllPeptides();
+    DensityStruct *dStruct;
+    dStruct = (DensityStruct*) malloc( (MAX_PEPTIDE_MASS)*DENSITY_MULTIPLIER*sizeof(DensityStruct));
+    generateDensity(dStruct);
+
     outputStream << proteinList.size() << " " << globalPeptideSet.size() << "\n";
     outputStream << "# proteins: " << proteinList.size() << endl;
     outputStream << "# tryptic:  " << numFullyTryptic << endl;
@@ -279,9 +284,6 @@ int main(int argc, char* argv[]) {
     //for( proteinIter = proteinList.begin(); proteinIter != proteinList.end(); ++ proteinIter) 
     //    outputStream << *proteinIter;
     //
-    DensityStruct *dStruct;
-    dStruct = (DensityStruct*) malloc( (MAX_PEPTIDE_MASS)*DENSITY_MULTIPLIER*sizeof(DensityStruct));
-    generateDensity(dStruct);
     for(int i = 0; i < MAX_PEPTIDE_MASS*DENSITY_MULTIPLIER; i++)
         outputStream << dStruct[i].numEntries << " " << dStruct[i].firstEntry << "\n";
     for( peptideSetIter = globalPeptideSet.begin(); peptideSetIter != globalPeptideSet.end(); ++peptideSetIter) {

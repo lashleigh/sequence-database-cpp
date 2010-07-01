@@ -66,7 +66,7 @@ void generateSemiCleaved( ) {
       int numPassedCleaveages = 0,
           numPassedPTS = 0,
           numPassedM = 0;
-      if(endPeptide(seq[0]))
+      if(endPeptide(seq[0], seq[1]) )
           numPassedCleaveages++;
       checkForSpecialChar(seq[0], numPassedPTS, numPassedM);
       for( int i = 1; i < seq.length(); i++ ) {
@@ -105,7 +105,7 @@ void generateSemiCleaved( ) {
               }
           }
           //cout << seq << " " << leftSeq << " " << rightSeq << endl;
-          if( endPeptide( seq[i] ))
+          if( endPeptide( seq[i], seq[i+1] ))
               numPassedCleaveages++;
           checkForSpecialChar(seq[i], numPassedPTS, numPassedM);
       }
@@ -147,7 +147,7 @@ string findNextPeptide(Peptide::Peptide &pep, string seq, Protein::Protein &p ) 
             continue;
         pepSeq += seq[i];
         checkForSpecialChar(seq[i], numPTS, numM);
-        if( endPeptide(seq[i]) ) {
+        if( endPeptide(seq[i], seq[i+1]) ) {
             pep.sequence = pepSeq;
             pep.neutralMass = massOfPep(pepSeq);
             pep.sequenceStartPosition = p.sequence.length() - seq.length();

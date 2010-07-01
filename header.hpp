@@ -16,7 +16,7 @@ void printSetOfAllPeptides();
 
 int badChar(char c);
 void checkForSpecialChar(char c, int &numPTS, int &numM);
-int endPeptide( char c);
+int endPeptide( char c, char next);
 double massOfPep( std::string seq );
 
 int goodSequence( std::string seq );

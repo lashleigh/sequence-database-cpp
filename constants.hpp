@@ -8,5 +8,5 @@
 #define MAX_LEN_PROTEIN     5000
 #define DENSITY_MULTIPLIER 10
 
-//#define SEMI_TRYPTIC        true
-#define SEMI_TRYPTIC        false
+#define SEMI_TRYPTIC        true
+//#define SEMI_TRYPTIC        false

@@ -19,8 +19,11 @@ int badChar(char c) {
     return(c == '*');
 }
 
-int endPeptide( char c) {
-    return( (c == 'K') or (c == 'R') );
+int endPeptide( char c, char next) {
+    if( (next == 'P') and (c == 'K'))
+        return false; 
+    else
+        return( (c == 'K') or (c == 'R') );
 }
 
 void checkForSpecialChar(char c, int &numPTS, int &numM) {
